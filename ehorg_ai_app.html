@@ -42,6 +42,9 @@ button:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px soli
 /* Interface web : navigation latérale et conversation centrée. */
 .web-shell{width:100%!important;height:100vh!important;height:100dvh!important;box-sizing:border-box}
 .desktop-nav{display:none}
+.sidebar-toggle{display:none}
+#msg{min-height:48px;max-height:192px;overflow-y:hidden;scrollbar-width:thin}
+
 .chat-scroll{width:min(100%,840px);align-self:center;box-sizing:border-box}
 .chat-composer{width:min(100%,840px);align-self:center;box-sizing:border-box}
 .chat-composer > div:last-child{box-shadow:0 5px 22px #292b3c0a}
@@ -55,7 +58,16 @@ button:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px soli
 @media(min-width:900px){
  .web-shell.is-chat{padding-left:280px}
  .desktop-nav{display:flex;position:absolute;left:0;top:0;bottom:0;width:280px;box-sizing:border-box;background:#F1F0EA;border-right:1px solid #E3E0D7;padding:25px 18px 18px;flex-direction:column;gap:15px}
- .desktop-nav .brand{display:flex;align-items:center;gap:10px;padding:0 8px 12px;font-size:22px;font-weight:700;letter-spacing:-.7px}
+ .desktop-nav .brand{display:flex;align-items:center;gap:9px;padding:0 2px 12px 8px;font-size:18px;font-weight:700;letter-spacing:-.4px}
+ .desktop-nav .brand-title{flex:1}
+ .sidebar-toggle{display:inline-flex;align-items:center;justify-content:center;flex:none;width:36px;height:36px;border:0;border-radius:9px;background:transparent;color:#707381;cursor:pointer}
+ .sidebar-toggle:hover{background:#E8E6E0;color:#252839}
+ .web-shell.is-chat.sidebar-closed{padding-left:0}
+ .sidebar-closed .desktop-nav{display:none}
+ .header-leading{display:flex;align-items:center;gap:12px}
+ .chat-header .header-brand span{font-size:16px!important}
+ .chat-header .header-brand svg{width:22px;height:22px}
+
  .desktop-nav .new-chat{display:flex;align-items:center;gap:10px;min-height:48px;border:1px solid #DCD9D1;background:#fff;border-radius:13px;padding:0 13px;font-size:14px;font-weight:700;text-align:left;cursor:pointer;color:#252839}
  .desktop-nav .new-chat:hover,.desktop-nav .history-row:hover{background:#E9E8E2}
  .desktop-nav .search{width:100%;height:42px;box-sizing:border-box;border:0;background:#E7E5DE;border-radius:11px;padding:0 12px;font:inherit;font-size:14px;color:#14171F}
@@ -72,19 +84,21 @@ button:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px soli
  .chat-header .header-brand{font-size:14px!important;color:#7D808B}
  .chat-scroll{padding:36px 36px 24px!important;gap:30px!important}
  .welcome{padding-bottom:55px!important}
- .welcome > svg{width:60px;height:60px;margin-bottom:10px;filter:drop-shadow(0 8px 18px #3B4CCA22)}
+ .welcome > svg{width:48px;height:48px;margin-bottom:10px;filter:drop-shadow(0 8px 18px #3B4CCA22)}
  .welcome-intro{max-width:460px;font-size:15px;color:#7A7D89;line-height:1.55;margin:0 0 14px}
  .starter-list{gap:10px!important;margin-top:0!important}
  .starter-button{padding:0 20px!important;min-height:44px!important;border-radius:14px!important;font-size:14px!important;transition:border-color .2s,background .2s,transform .2s}
  .starter-button:hover{border-color:#B5BCEB!important;background:#F2F3FC!important;transform:translateY(-2px)}
  .user-message>div{max-width:min(70%,540px)!important;padding:13px 18px!important}
  .ai-message{padding-right:15px;gap:11px!important}
- .answer-body{font-size:16px;line-height:1.75}
- .answer-body h3{font-size:24px}
+ .answer-body{font-size:15px;line-height:1.65}
+ .answer-body h3{font-size:19px}
  .chat-composer > div:last-child{box-shadow:0 8px 32px #292B3C0c,0 2px 8px #292B3C08}
  .chat-composer{padding:8px 36px 30px!important}
  .chat-composer > div:last-child{border-radius:22px!important;padding:10px 12px 10px 16px!important}
- .chat-scroll h1{font-size:36px!important;letter-spacing:-1.1px}
+ .chat-scroll h1{font-size:28px!important;letter-spacing:-.6px}
+ .user-message>div{font-size:15px!important}
+ #msg{font-size:15px!important}
  .screen-content{padding:24px 32px 48px!important}
  .screen-header{padding:20px 32px!important;border-bottom:1px solid #F0EEE8}
  .sheet{bottom:24px!important;border-radius:24px!important}
@@ -101,8 +115,8 @@ button:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px soli
 
 <!-- ===== CHAT ===== -->
 <sc-if value="{{ isChat }}" hint-placeholder-val="{{ true }}">
-<aside class="desktop-nav" aria-label="Navigation et historique">
-<div class="brand"><svg aria-hidden="true" width="29" height="29" viewBox="0 0 32 32"><circle cx="16" cy="16" r="13" fill="none" stroke="#3B4CCA" stroke-width="3"/><circle cx="16" cy="16" r="5" fill="#3B4CCA"/></svg>Ehorg</div>
+<aside id="desktop-navigation" class="desktop-nav" aria-label="Navigation et historique">
+<div class="brand"><svg aria-hidden="true" width="25" height="25" viewBox="0 0 32 32"><circle cx="16" cy="16" r="13" fill="none" stroke="#3B4CCA" stroke-width="3"/><circle cx="16" cy="16" r="5" fill="#3B4CCA"/></svg><span class="brand-title">Ehorg</span><button type="button" class="sidebar-toggle" onClick="{{ toggleSidebar }}" aria-label="Fermer le panneau latéral" aria-expanded="{{ sidebarOpen }}" aria-controls="desktop-navigation"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/><path d="m15 9-3 3 3 3"/></svg></button></div>
 <button type="button" class="new-chat" onClick="{{ newChat }}"><svg width="19" height="19" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Nouvelle conversation</button>
 <label for="web-search" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Rechercher dans les conversations</label>
 <input id="web-search" class="search" type="search" placeholder="Rechercher une conversation" value="{{ query }}" onChange="{{ onQuery }}">
@@ -118,7 +132,7 @@ button:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px soli
 <button class="mobile-history" type="button" onClick="{{ openDrawer }}" aria-label="Ouvrir l’historique" style="width: 44px; height: 44px; border: 0; background: transparent; color: #14171F; cursor: pointer; display: flex; align-items: center; justify-content: center">
 <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 8h12"/><path d="M4 16h16"/></svg>
 </button>
-<div class="header-brand" style="display: flex; align-items: center; gap: 8px; min-height: 44px"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 32 32"><circle cx="16" cy="16" r="13" fill="none" stroke="#3B4CCA" stroke-width="3"/><circle cx="16" cy="16" r="5" fill="#3B4CCA"/></svg><span style="font-size: 19px; font-weight: 700">Ehorg</span></div>
+<div class="header-leading"><button type="button" class="sidebar-toggle" onClick="{{ toggleSidebar }}" aria-label="{{ sidebarLabel }}" aria-expanded="{{ sidebarOpen }}" aria-controls="desktop-navigation"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/></svg></button><div class="header-brand" style="display: flex; align-items: center; gap: 8px; min-height: 44px"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 32 32"><circle cx="16" cy="16" r="13" fill="none" stroke="#3B4CCA" stroke-width="3"/><circle cx="16" cy="16" r="5" fill="#3B4CCA"/></svg><span style="font-size: 19px; font-weight: 700">Ehorg</span></div></div>
 <button type="button" onClick="{{ newChat }}" aria-label="Nouvelle conversation" style="width: 44px; height: 44px; border: 0; background: transparent; color: #14171F; cursor: pointer; display: flex; align-items: center; justify-content: center">
 <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
 </button>
@@ -566,7 +580,7 @@ class Component extends DCLogic {
   constructor(props) {
     super(props);
     this.state = {
-      screen: 'chat', prev: 'chat', drawer: false, sheet: null, plan: 1,
+      screen: 'chat', prev: 'chat', drawer: false, sidebarOpen: true, sheet: null, plan: 1,
       model: 'medium', level: 1, mode: 1, boost: 0, ctx: 0,
       tools: { web: false, deep: false, image: false, video: false }, attach: [],
       draft: '', messages: [], chats: [
@@ -754,7 +768,7 @@ class Component extends DCLogic {
     const hasText = s.draft.trim().length > 0;
 
     return {
-      shellClass: s.screen === 'chat' ? 'is-chat' : '', isChat: s.screen === 'chat', isVoice: s.screen === 'voice', isSettings: s.screen === 'settings', isPlans: s.screen === 'plans',
+      shellClass: s.screen === 'chat' ? (s.sidebarOpen ? 'is-chat' : 'is-chat sidebar-closed') : '', sidebarOpen: s.sidebarOpen, sidebarLabel: s.sidebarOpen ? 'Fermer le panneau latéral' : 'Ouvrir le panneau latéral', toggleSidebar: () => set({ sidebarOpen: !s.sidebarOpen }), isChat: s.screen === 'chat', isVoice: s.screen === 'voice', isSettings: s.screen === 'settings', isPlans: s.screen === 'plans',
       planName: PLAN_NAMES[pi],
       modelName: model.label + ' ' + model.v, levelName: LEVELS[s.level],
       isQuick: s.mode === 0, isThink: s.mode === 1, isStrong: s.mode === 2,
@@ -791,7 +805,7 @@ class Component extends DCLogic {
       lowQuota: afford && pct < 20, lowText: 'Il reste ' + pct + ' % du quota de votre compte.',
       hasToast: s.toast !== '', toastText: s.toast,
       hasChips: chips.length > 0, chips,
-      draft: s.draft, onDraft: (e) => set({ draft: e.target.value }),
+      draft: s.draft, onDraft: (e) => { resizePrompt(e.target); set({ draft: e.target.value }); },
       showStop: s.gen, showSend: !s.gen && hasText, showVoice: !s.gen && !hasText,
       send, stop, openVoice: startVoice,
       // voice
@@ -910,12 +924,20 @@ function patch(a, b) {
   n.forEach((c, i) => { if (i < o.length) sync(o[i], c); else a.appendChild(c); });
   while (a.childNodes.length > n.length) a.removeChild(a.lastChild);
 }
+function resizePrompt(el) {
+  if (!el) return;
+  el.style.height = 'auto';
+  const contentHeight = el.scrollHeight;
+  el.style.height = Math.max(48, Math.min(192, contentHeight)) + 'px';
+  el.style.overflowY = contentHeight > 192 ? 'auto' : 'hidden';
+}
 function render() {
   const vals = comp.renderVals();
   const next = document.createElement('div'); next.style.display = 'contents';
   tpl.childNodes.forEach((c) => next.appendChild(build(c, vals)));
   const root = app.firstElementChild;
   if (!root) { app.appendChild(next); } else { patch(root, next); }
+  resizePrompt(document.getElementById('msg'));
 }
 render();
 
